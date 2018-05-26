@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  first_one
+//  predictActivity
 //
-//  Created by Shachar Hirshberg on 25/05/2018.
+//  Created by Shachar Hirshberg on 26/05/2018.
 //  Copyright © 2018 Shachar Hirshberg. All rights reserved.
 //
 
