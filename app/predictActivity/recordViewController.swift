@@ -2,7 +2,7 @@ import UIKit
 import CoreMotion
 
 
-var WINDOW_SIZE = 7
+var WINDOW_SIZE = 20
 
 var model = activityPredictor()
 
@@ -35,25 +35,6 @@ extension Array where Element == Double{
     
 }
 
-//func calcSum(array: [Double]) -> Double {
-//    return Double(array.sum())
-//}
-//
-//func calcAverage(array: [Double]) -> Double {
-//    return Double(array.avg())
-//}
-//
-//func calcMin(array: [Double]) -> Double {
-//    return Double(array.min())
-//}
-//
-//func calcMax(array: [Double]) -> Double {
-//    return Double(array.max())
-//}
-//
-//func calcStd(array: [Double]) -> Double {
-//    return Double(array.std())
-//}
 
 // Objects that we might use
 
@@ -244,11 +225,10 @@ class predictInputsObject{
     }
 }
 
-
-class ViewController: UIViewController {
-    
+class Session {
+ // All the data regarding a single session
     // Sliding windows for sensors data
-    
+
     var userAccXArray: [Double] = []
     var userAccYArray: [Double] = []
     var userAccZArray: [Double] = []
@@ -265,8 +245,8 @@ class ViewController: UIViewController {
     var rotYArray: [Double] = []
     var rotZArray: [Double] = []
     
-    var motionManager = CMMotionManager()
-    
+    var predictionsArray: [Int8] = []
+ 
     // Outlets
     
     @IBOutlet var userAccX: UILabel?
@@ -284,10 +264,15 @@ class ViewController: UIViewController {
     @IBOutlet var rotX: UILabel?
     @IBOutlet var rotY: UILabel?
     @IBOutlet var rotZ: UILabel?
+}
+
+class recordViewController: UIViewController {
+    
+    var currentSession = Session()
+    
+    var motionManager = CMMotionManager()
     
     @IBOutlet var predictResult: UILabel!
-    
-    
     
     // Functions
     
@@ -297,6 +282,16 @@ class ViewController: UIViewController {
         // Set Motion manager properties
         
         motionManager.deviceMotionUpdateInterval = 0.1
+
+        // initiallize session
+//        currentSession = Session()
+
+        // start recording
+        
+        // stop button clicked
+            // finish session
+            // smooth predicitions array
+            // create graph of the session
         
         // Start recording data
         
@@ -316,6 +311,8 @@ class ViewController: UIViewController {
             
             // predict
             let prediction = predictTheActivity(input: predictInputsObject)
+        
+            self.currentSession.predictionsArray.append(Int8(prediction))
             
             // output to the main screen
             outputGravityData(gravity: gravity)
@@ -332,100 +329,100 @@ class ViewController: UIViewController {
         func updateSlidingWindowArrays(
             acceleration: CMAcceleration, attitude: CMAttitude,
             gravity: CMAcceleration, rotation: CMRotationRate){
-            slidingWindowHandler(array: &userAccXArray, point: acceleration.x)
-            slidingWindowHandler(array: &userAccYArray, point: acceleration.y)
-            slidingWindowHandler(array: &userAccZArray, point: acceleration.z)
+            slidingWindowHandler(array: &currentSession.userAccXArray, point: acceleration.x)
+            slidingWindowHandler(array: &currentSession.userAccYArray, point: acceleration.y)
+            slidingWindowHandler(array: &currentSession.userAccZArray, point: acceleration.z)
             
-            slidingWindowHandler(array: &attitudeRollArray, point: attitude.roll)
-            slidingWindowHandler(array: &attitudePitchArray, point: attitude.pitch)
-            slidingWindowHandler(array: &attitudeYawArray, point: attitude.yaw)
+            slidingWindowHandler(array: &currentSession.attitudeRollArray, point: attitude.roll)
+            slidingWindowHandler(array: &currentSession.attitudePitchArray, point: attitude.pitch)
+            slidingWindowHandler(array: &currentSession.attitudeYawArray, point: attitude.yaw)
             
-            slidingWindowHandler(array: &gravityXArray, point: gravity.x)
-            slidingWindowHandler(array: &gravityYArray, point: gravity.y)
-            slidingWindowHandler(array: &gravityZArray, point: gravity.z)
+            slidingWindowHandler(array: &currentSession.gravityXArray, point: gravity.x)
+            slidingWindowHandler(array: &currentSession.gravityYArray, point: gravity.y)
+            slidingWindowHandler(array: &currentSession.gravityZArray, point: gravity.z)
             
             
-            slidingWindowHandler(array: &rotXArray, point: rotation.x)
-            slidingWindowHandler(array: &rotYArray, point: rotation.y)
-            slidingWindowHandler(array: &rotZArray, point: rotation.z)
+            slidingWindowHandler(array: &currentSession.rotXArray, point: rotation.x)
+            slidingWindowHandler(array: &currentSession.rotYArray, point: rotation.y)
+            slidingWindowHandler(array: &currentSession.rotZArray, point: rotation.z)
             
         }
         
         func createPredictInputsObject () -> predictInputsObject {
 //        func createPredictInputsObject () -> Int64 {
         
-            let attitude_roll_sld_mean = attitudeRollArray.avg()
-            let attitude_pitch_sld_mean = attitudePitchArray.avg()
-            let attitude_yaw_sld_mean = attitudeYawArray.avg()
-            let gravity_x_sld_mean = gravityXArray.avg()
-            let gravity_y_sld_mean = gravityYArray.avg()
-            let gravity_z_sld_mean = gravityZArray.avg()
-            let rotationRate_x_sld_mean = rotXArray.avg()
-            let rotationRate_y_sld_mean = rotYArray.avg()
-            let rotationRate_z_sld_mean = rotZArray.avg()
-            let userAcceleration_x_sld_mean = userAccXArray.avg()
-            let userAcceleration_y_sld_mean = userAccYArray.avg()
-            let userAcceleration_z_sld_mean = userAccZArray.avg()
-            let attitude_roll_sld_sum = attitudeRollArray.sum()
-            let attitude_pitch_sld_sum = attitudePitchArray.sum()
-            let attitude_yaw_sld_sum = attitudeYawArray.sum()
-            let gravity_x_sld_sum = gravityXArray.sum()
-            let gravity_y_sld_sum = gravityYArray.sum()
-            let gravity_z_sld_sum = gravityZArray.sum()
-            let rotationRate_x_sld_sum = rotXArray.sum()
-            let rotationRate_y_sld_sum = rotYArray.sum()
-            let rotationRate_z_sld_sum = rotZArray.sum()
-            let userAcceleration_x_sld_sum = userAccXArray.sum()
-            let userAcceleration_y_sld_sum = userAccYArray.sum()
-            let userAcceleration_z_sld_sum = userAccZArray.sum()
-            let attitude_roll_sld_median = calcMedian(array: attitudeRollArray)
-            let attitude_pitch_sld_median = calcMedian(array: attitudePitchArray)
-            let attitude_yaw_sld_median = calcMedian(array: attitudeYawArray)
-            let gravity_x_sld_median = calcMedian(array: gravityXArray)
-            let gravity_y_sld_median = calcMedian(array: gravityYArray)
-            let gravity_z_sld_median = calcMedian(array: gravityZArray)
-            let rotationRate_x_sld_median = calcMedian(array: rotXArray)
-            let rotationRate_y_sld_median = calcMedian(array: rotYArray)
-            let rotationRate_z_sld_median = calcMedian(array: rotZArray)
-            let userAcceleration_x_sld_median = calcMedian(array: userAccXArray)
-            let userAcceleration_y_sld_median = calcMedian(array: userAccYArray)
-            let userAcceleration_z_sld_median = calcMedian(array: userAccZArray)
-            let attitude_roll_sld_min = attitudeRollArray.min()
-            let attitude_pitch_sld_min = attitudePitchArray.min()
-            let attitude_yaw_sld_min = attitudeYawArray.min()
-            let gravity_x_sld_min = gravityXArray.min()
-            let gravity_y_sld_min = gravityYArray.min()
-            let gravity_z_sld_min = gravityZArray.min()
-            let rotationRate_x_sld_min = rotXArray.min()
-            let rotationRate_y_sld_min = rotYArray.min()
-            let rotationRate_z_sld_min = rotZArray.min()
-            let userAcceleration_x_sld_min = userAccXArray.min()
-            let userAcceleration_y_sld_min = userAccYArray.min()
-            let userAcceleration_z_sld_min = userAccZArray.min()
-            let attitude_roll_sld_max = attitudeRollArray.max()
-            let attitude_pitch_sld_max = attitudePitchArray.max()
-            let attitude_yaw_sld_max = attitudeYawArray.max()
-            let gravity_x_sld_max = gravityXArray.max()
-            let gravity_y_sld_max = gravityYArray.max()
-            let gravity_z_sld_max = gravityZArray.max()
-            let rotationRate_x_sld_max = rotXArray.max()
-            let rotationRate_y_sld_max = rotYArray.max()
-            let rotationRate_z_sld_max = rotZArray.max()
-            let userAcceleration_x_sld_max = userAccXArray.max()
-            let userAcceleration_y_sld_max = userAccYArray.max()
-            let userAcceleration_z_sld_max = userAccZArray.max()
-            let attitude_roll_sld_std = attitudeRollArray.std()
-            let attitude_pitch_sld_std = attitudePitchArray.std()
-            let attitude_yaw_sld_std = attitudeYawArray.std()
-            let gravity_x_sld_std = gravityXArray.std()
-            let gravity_y_sld_std = gravityYArray.std()
-            let gravity_z_sld_std = gravityZArray.std()
-            let rotationRate_x_sld_std = rotXArray.std()
-            let rotationRate_y_sld_std = rotYArray.std()
-            let rotationRate_z_sld_std = rotZArray.std()
-            let userAcceleration_x_sld_std = userAccXArray.std()
-            let userAcceleration_y_sld_std = userAccYArray.std()
-            let userAcceleration_z_sld_std = userAccZArray.std()
+            let attitude_roll_sld_mean = currentSession.attitudeRollArray.avg()
+            let attitude_pitch_sld_mean = currentSession.attitudePitchArray.avg()
+            let attitude_yaw_sld_mean = currentSession.attitudeYawArray.avg()
+            let gravity_x_sld_mean = currentSession.gravityXArray.avg()
+            let gravity_y_sld_mean = currentSession.gravityYArray.avg()
+            let gravity_z_sld_mean = currentSession.gravityZArray.avg()
+            let rotationRate_x_sld_mean = currentSession.rotXArray.avg()
+            let rotationRate_y_sld_mean = currentSession.rotYArray.avg()
+            let rotationRate_z_sld_mean = currentSession.rotZArray.avg()
+            let userAcceleration_x_sld_mean = currentSession.userAccXArray.avg()
+            let userAcceleration_y_sld_mean = currentSession.userAccYArray.avg()
+            let userAcceleration_z_sld_mean = currentSession.userAccZArray.avg()
+            let attitude_roll_sld_sum = currentSession.attitudeRollArray.sum()
+            let attitude_pitch_sld_sum = currentSession.attitudePitchArray.sum()
+            let attitude_yaw_sld_sum = currentSession.attitudeYawArray.sum()
+            let gravity_x_sld_sum = currentSession.gravityXArray.sum()
+            let gravity_y_sld_sum = currentSession.gravityYArray.sum()
+            let gravity_z_sld_sum = currentSession.gravityZArray.sum()
+            let rotationRate_x_sld_sum = currentSession.rotXArray.sum()
+            let rotationRate_y_sld_sum = currentSession.rotYArray.sum()
+            let rotationRate_z_sld_sum = currentSession.rotZArray.sum()
+            let userAcceleration_x_sld_sum = currentSession.userAccXArray.sum()
+            let userAcceleration_y_sld_sum = currentSession.userAccYArray.sum()
+            let userAcceleration_z_sld_sum = currentSession.userAccZArray.sum()
+            let attitude_roll_sld_median = calcMedian(array: currentSession.attitudeRollArray)
+            let attitude_pitch_sld_median = calcMedian(array: currentSession.attitudePitchArray)
+            let attitude_yaw_sld_median = calcMedian(array: currentSession.attitudeYawArray)
+            let gravity_x_sld_median = calcMedian(array: currentSession.gravityXArray)
+            let gravity_y_sld_median = calcMedian(array: currentSession.gravityYArray)
+            let gravity_z_sld_median = calcMedian(array: currentSession.gravityZArray)
+            let rotationRate_x_sld_median = calcMedian(array: currentSession.rotXArray)
+            let rotationRate_y_sld_median = calcMedian(array: currentSession.rotYArray)
+            let rotationRate_z_sld_median = calcMedian(array: currentSession.rotZArray)
+            let userAcceleration_x_sld_median = calcMedian(array: currentSession.userAccXArray)
+            let userAcceleration_y_sld_median = calcMedian(array: currentSession.userAccYArray)
+            let userAcceleration_z_sld_median = calcMedian(array: currentSession.userAccZArray)
+            let attitude_roll_sld_min = currentSession.attitudeRollArray.min()
+            let attitude_pitch_sld_min = currentSession.attitudePitchArray.min()
+            let attitude_yaw_sld_min = currentSession.attitudeYawArray.min()
+            let gravity_x_sld_min = currentSession.gravityXArray.min()
+            let gravity_y_sld_min = currentSession.gravityYArray.min()
+            let gravity_z_sld_min = currentSession.gravityZArray.min()
+            let rotationRate_x_sld_min = currentSession.rotXArray.min()
+            let rotationRate_y_sld_min = currentSession.rotYArray.min()
+            let rotationRate_z_sld_min = currentSession.rotZArray.min()
+            let userAcceleration_x_sld_min = currentSession.userAccXArray.min()
+            let userAcceleration_y_sld_min = currentSession.userAccYArray.min()
+            let userAcceleration_z_sld_min = currentSession.userAccZArray.min()
+            let attitude_roll_sld_max = currentSession.attitudeRollArray.max()
+            let attitude_pitch_sld_max = currentSession.attitudePitchArray.max()
+            let attitude_yaw_sld_max = currentSession.attitudeYawArray.max()
+            let gravity_x_sld_max = currentSession.gravityXArray.max()
+            let gravity_y_sld_max = currentSession.gravityYArray.max()
+            let gravity_z_sld_max = currentSession.gravityZArray.max()
+            let rotationRate_x_sld_max = currentSession.rotXArray.max()
+            let rotationRate_y_sld_max = currentSession.rotYArray.max()
+            let rotationRate_z_sld_max = currentSession.rotZArray.max()
+            let userAcceleration_x_sld_max = currentSession.userAccXArray.max()
+            let userAcceleration_y_sld_max = currentSession.userAccYArray.max()
+            let userAcceleration_z_sld_max = currentSession.userAccZArray.max()
+            let attitude_roll_sld_std = currentSession.attitudeRollArray.std()
+            let attitude_pitch_sld_std = currentSession.attitudePitchArray.std()
+            let attitude_yaw_sld_std = currentSession.attitudeYawArray.std()
+            let gravity_x_sld_std = currentSession.gravityXArray.std()
+            let gravity_y_sld_std = currentSession.gravityYArray.std()
+            let gravity_z_sld_std = currentSession.gravityZArray.std()
+            let rotationRate_x_sld_std = currentSession.rotXArray.std()
+            let rotationRate_y_sld_std = currentSession.rotYArray.std()
+            let rotationRate_z_sld_std = currentSession.rotZArray.std()
+            let userAcceleration_x_sld_std = currentSession.userAccXArray.std()
+            let userAcceleration_y_sld_std = currentSession.userAccYArray.std()
+            let userAcceleration_z_sld_std = currentSession.userAccZArray.std()
             
             return predictInputsObject(attitude_roll_sld_mean: attitude_roll_sld_mean,
                                        attitude_pitch_sld_mean: attitude_pitch_sld_mean,
@@ -604,27 +601,27 @@ class ViewController: UIViewController {
             }
         }
         func outputAccelerationData(acceleration: CMAcceleration) {
-            userAccX?.text = "\(acceleration.x).2fg"
-            userAccY?.text = "\(acceleration.y).2fg"
-            userAccZ?.text = "\(acceleration.z).2fg"
+            currentSession.userAccX?.text = "\(acceleration.x).2fg"
+            currentSession.userAccY?.text = "\(acceleration.y).2fg"
+            currentSession.userAccZ?.text = "\(acceleration.z).2fg"
         }
         
         func outputAttitudeData(attitude: CMAttitude) {
-            attitudeRoll?.text = "\(attitude.roll).2fr/s"
-            attitudePitch?.text = "\(attitude.pitch).2fr/s"
-            attitudeYaw?.text = "\(attitude.yaw).2fr/s"
+            currentSession.attitudeRoll?.text = "\(attitude.roll).2fr/s"
+            currentSession.attitudePitch?.text = "\(attitude.pitch).2fr/s"
+            currentSession.attitudeYaw?.text = "\(attitude.yaw).2fr/s"
         }
         // todo check the difference between gravity and acceleration
         func outputGravityData(gravity: CMAcceleration) {
-            gravityX?.text = "\(gravity.x).2fr/s"
-            gravityY?.text = "\(gravity.y).2fr/s"
-            gravityZ?.text = "\(gravity.z).2fr/s"
+            currentSession.gravityX?.text = "\(gravity.x).2fr/s"
+            currentSession.gravityY?.text = "\(gravity.y).2fr/s"
+            currentSession.gravityZ?.text = "\(gravity.z).2fr/s"
         }
         
         func outputRotationData(rotation: CMRotationRate) {
-            rotX?.text = "\(rotation.x).2fr/s"
-            rotY?.text = "\(rotation.y).2fr/s"
-            rotZ?.text = "\(rotation.z).2fr/s"
+            currentSession.rotX?.text = "\(rotation.x).2fr/s"
+            currentSession.rotY?.text = "\(rotation.y).2fr/s"
+            currentSession.rotZ?.text = "\(rotation.z).2fr/s"
         }
         
         func outputPrediction(res: Int64) {
