@@ -268,7 +268,15 @@ class Session {
 
 class recordViewController: UIViewController {
     
+    @IBAction func stopRecording(_ sender: Any) {
+        performSegue(withIdentifier: "stopRecording", sender: self)
+    }
     var currentSession = Session()
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destVC : summaryViewController = segue.destination as! summaryViewController
+        destVC.predictionsArray = self.currentSession.predictionsArray
+    }
     
     var motionManager = CMMotionManager()
     
