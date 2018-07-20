@@ -1,82 +1,64 @@
 import UIKit
 import CoreMotion
 
+/* Workflow:
+ 1) Initiallize session
+ 2) Start recording
+ 3) Stop recording when the "Stop" button is clicked
+ 4) Send the session's predictions to the Summary window
+ 5) Move to the Summary window
+*/
 
 var WINDOW_SIZE = 20
 
+// Our ML model
 var model = activityPredictor()
 
-// Math functions
+// Objects
 
-func calcMedian(array: [Double]) -> Double {
-    let sorted = array.sorted()
-    if sorted.count % 2 == 0 {
-        return Double((sorted[(sorted.count / 2)] + sorted[(sorted.count / 2) - 1])) / 2
-    } else {
-        return Double(sorted[(sorted.count - 1) / 2])
-    }
+class Session {
+    // All the data regarding a single session
+    
+    // Sliding windows for sensors data
+    var userAccXArray: [Double] = []
+    var userAccYArray: [Double] = []
+    var userAccZArray: [Double] = []
+    
+    var attitudeRollArray: [Double] = []
+    var attitudePitchArray: [Double] = []
+    var attitudeYawArray: [Double] = []
+    
+    var gravityXArray: [Double] = []
+    var gravityYArray: [Double] = []
+    var gravityZArray: [Double] = []
+    
+    var rotXArray: [Double] = []
+    var rotYArray: [Double] = []
+    var rotZArray: [Double] = []
+    
+    // Our predictions for this session
+    var predictionsArray: [Int8] = []
+    
+    // Outlets
+    
+    @IBOutlet var userAccX: UILabel?
+    @IBOutlet var userAccY: UILabel?
+    @IBOutlet var userAccZ: UILabel?
+    
+    @IBOutlet var attitudeRoll: UILabel?
+    @IBOutlet var attitudePitch: UILabel?
+    @IBOutlet var attitudeYaw: UILabel?
+    
+    @IBOutlet var gravityX: UILabel?
+    @IBOutlet var gravityY: UILabel?
+    @IBOutlet var gravityZ: UILabel?
+    
+    @IBOutlet var rotX: UILabel?
+    @IBOutlet var rotY: UILabel?
+    @IBOutlet var rotZ: UILabel?
 }
 
-extension Array where Element == Double{
-    
-    func sum() -> Element {
-        return self.reduce(0, +)
-    }
-    
-    func avg() -> Element {
-        return self.sum() / Element(self.count)
-    }
-    
-    func std() -> Element {
-        let mean = self.avg()
-        let v = self.reduce(0, { $0 + ($1-mean)*($1-mean) })
-        return sqrt(v / (Element(self.count) - 1))
-    }
-    
-}
-
-
-// Objects that we might use
-
-class timePointObject {
-    var userAccX: Double!
-    var userAccY: Double!
-    var userAccZ: Double!
-    
-    var attitudeRoll: Double!
-    var attitudePitch: Double!
-    var attitudeYaw: Double!
-    
-    var gravityX: Double!
-    var gravityY: Double!
-    var gravityZ: Double!
-    
-    var rotX: Double!
-    var rotY: Double!
-    var rotZ: Double!
-    
-    init(
-        userAccX: Double, userAccY: Double, userAccZ: Double,
-        attitudeRoll: Double, attitudePitch: Double, attitudeYaw: Double,
-        gravityX: Double, gravityY: Double, gravityZ: Double,
-        rotX: Double, rotY: Double, rotZ: Double
-        ) {
-        self.userAccX = userAccX
-        self.userAccY = userAccY
-        self.userAccZ = userAccZ
-        self.attitudeRoll = attitudeRoll
-        self.attitudePitch = attitudePitch
-        self.attitudeYaw = attitudeYaw
-        self.gravityX = gravityX
-        self.gravityY = gravityY
-        self.gravityZ = gravityZ
-        self.rotX = rotX
-        self.rotY = rotY
-        self.rotZ = rotZ
-    }
-}
-
-class predictInputsObject{
+class predictionInputsObject{
     var attitude_roll_sld_mean: Double!
     var attitude_pitch_sld_mean: Double!
     var attitude_yaw_sld_mean: Double!
@@ -225,45 +207,33 @@ class predictInputsObject{
     }
 }
 
-class Session {
- // All the data regarding a single session
-    // Sliding windows for sensors data
+// Math functions
 
-    var userAccXArray: [Double] = []
-    var userAccYArray: [Double] = []
-    var userAccZArray: [Double] = []
+func calcMedian(array: [Double]) -> Double {
+    let sorted = array.sorted()
+    if sorted.count % 2 == 0 {
+        return Double((sorted[(sorted.count / 2)] + sorted[(sorted.count / 2) - 1])) / 2
+    } else {
+        return Double(sorted[(sorted.count - 1) / 2])
+    }
+}
+
+extension Array where Element == Double {
     
-    var attitudeRollArray: [Double] = []
-    var attitudePitchArray: [Double] = []
-    var attitudeYawArray: [Double] = []
+    func sum() -> Element {
+        return self.reduce(0, +)
+    }
     
-    var gravityXArray: [Double] = []
-    var gravityYArray: [Double] = []
-    var gravityZArray: [Double] = []
+    func avg() -> Element {
+        return self.sum() / Element(self.count)
+    }
     
-    var rotXArray: [Double] = []
-    var rotYArray: [Double] = []
-    var rotZArray: [Double] = []
+    func std() -> Element {
+        let mean = self.avg()
+        let v = self.reduce(0, { $0 + ($1-mean)*($1-mean) })
+        return sqrt(v / (Element(self.count) - 1))
+    }
     
-    var predictionsArray: [Int8] = []
- 
-    // Outlets
-    
-    @IBOutlet var userAccX: UILabel?
-    @IBOutlet var userAccY: UILabel?
-    @IBOutlet var userAccZ: UILabel?
-    
-    @IBOutlet var attitudeRoll: UILabel?
-    @IBOutlet var attitudePitch: UILabel?
-    @IBOutlet var attitudeYaw: UILabel?
-    
-    @IBOutlet var gravityX: UILabel?
-    @IBOutlet var gravityY: UILabel?
-    @IBOutlet var gravityZ: UILabel?
-    
-    @IBOutlet var rotX: UILabel?
-    @IBOutlet var rotY: UILabel?
-    @IBOutlet var rotZ: UILabel?
 }
 
 class recordViewController: UIViewController {
@@ -287,22 +257,9 @@ class recordViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set Motion manager properties
+        // Set Motion manager properties -> record every 0.1 seconds
         
         motionManager.deviceMotionUpdateInterval = 0.1
-
-        // initiallize session
-//        currentSession = Session()
-
-        // start recording
-        
-        // stop button clicked
-            // finish session
-            // smooth predicitions array
-            // create graph of the session
-        
-        // Start recording data
-        
         
         motionManager.startDeviceMotionUpdates(to: OperationQueue.main, withHandler: {
             dmData,error in
@@ -314,20 +271,18 @@ class recordViewController: UIViewController {
             // handle the incoming data
             updateSlidingWindowArrays(acceleration: userAcceleration, attitude: attitude,
                                       gravity: gravity,rotation: gyro)
+            
             // create inputs object for the model with the aggregated data
             let predictInputsObject = createPredictInputsObject()
             
-            // predict
-            let prediction = predictTheActivity(input: predictInputsObject)
-        
-            self.currentSession.predictionsArray.append(Int8(prediction))
+            // predict and add the prediction to the predictions array
+            var prediction = predictTheActivity(input: predictInputsObject)
             
-            // output to the main screen
-            outputGravityData(gravity: gravity)
-            outputAccelerationData(acceleration: userAcceleration)
-            outputAttitudeData(attitude: attitude)
-            outputRotationData(rotation: gyro)
-            outputPrediction(res: prediction)
+            // uniting the predictions for going up/down the stairs
+            if (prediction == 5){
+                prediction = 3
+            }
+            self.currentSession.predictionsArray.append(Int8(prediction))
             
             if ((error) != nil){
                 print("\(error ?? "error in device motion" as! Error)")
@@ -356,8 +311,7 @@ class recordViewController: UIViewController {
             
         }
         
-        func createPredictInputsObject () -> predictInputsObject {
-//        func createPredictInputsObject () -> Int64 {
+        func createPredictInputsObject () -> predictionInputsObject {
         
             let attitude_roll_sld_mean = currentSession.attitudeRollArray.avg()
             let attitude_pitch_sld_mean = currentSession.attitudePitchArray.avg()
@@ -432,7 +386,7 @@ class recordViewController: UIViewController {
             let userAcceleration_y_sld_std = currentSession.userAccYArray.std()
             let userAcceleration_z_sld_std = currentSession.userAccZArray.std()
             
-            return predictInputsObject(attitude_roll_sld_mean: attitude_roll_sld_mean,
+            return predictionInputsObject(attitude_roll_sld_mean: attitude_roll_sld_mean,
                                        attitude_pitch_sld_mean: attitude_pitch_sld_mean,
                                        attitude_yaw_sld_mean: attitude_yaw_sld_mean,
                                        gravity_x_sld_mean: gravity_x_sld_mean,
@@ -506,7 +460,8 @@ class recordViewController: UIViewController {
                                        userAcceleration_z_sld_std: userAcceleration_z_sld_std)
             
         }
-        func predictTheActivity (input: predictInputsObject) -> Int64 {
+        
+        func predictTheActivity (input: predictionInputsObject) -> Int64 {
             do {
                 let prediction = try model.prediction(attitude_roll_sld_mean: input.attitude_roll_sld_mean,
                                                       attitude_pitch_sld_mean: input.attitude_pitch_sld_mean,
@@ -586,54 +541,12 @@ class recordViewController: UIViewController {
             }
             return 0
         }
-        //        func createTimePointObject(
-        //            acceleration: CMAcceleration, attitude: CMAttitude,
-        //            gravity: CMAcceleration, rotation: CMRotationRate){
-        //            return timePointObject(
-        //                acceleration.x,acceleration.y,acceleration.z,
-        //                attitude.roll, attitude.pitch, attitude.yaw,
-        //                gravity.x, gravity.y, gravity.z,
-        //                rotation.x, rotation.y, rotation.z
-        //            )
-        //        }
-        
-        //
-        //        func predictActivity( ) {
-        //
-        //        }
-        
+
         func slidingWindowHandler (array: inout [Double], point: Double ) -> Void {
             array.append(point)
             if (array.count > WINDOW_SIZE) {
                 array.remove(at: 0)
             }
-        }
-        func outputAccelerationData(acceleration: CMAcceleration) {
-            currentSession.userAccX?.text = "\(acceleration.x).2fg"
-            currentSession.userAccY?.text = "\(acceleration.y).2fg"
-            currentSession.userAccZ?.text = "\(acceleration.z).2fg"
-        }
-        
-        func outputAttitudeData(attitude: CMAttitude) {
-            currentSession.attitudeRoll?.text = "\(attitude.roll).2fr/s"
-            currentSession.attitudePitch?.text = "\(attitude.pitch).2fr/s"
-            currentSession.attitudeYaw?.text = "\(attitude.yaw).2fr/s"
-        }
-        // todo check the difference between gravity and acceleration
-        func outputGravityData(gravity: CMAcceleration) {
-            currentSession.gravityX?.text = "\(gravity.x).2fr/s"
-            currentSession.gravityY?.text = "\(gravity.y).2fr/s"
-            currentSession.gravityZ?.text = "\(gravity.z).2fr/s"
-        }
-        
-        func outputRotationData(rotation: CMRotationRate) {
-            currentSession.rotX?.text = "\(rotation.x).2fr/s"
-            currentSession.rotY?.text = "\(rotation.y).2fr/s"
-            currentSession.rotZ?.text = "\(rotation.z).2fr/s"
-        }
-        
-        func outputPrediction(res: Int64) {
-            predictResult?.text = "\(modelResToString(intRes: res))"
         }
         
         func modelResToString(intRes: Int64) -> String{
@@ -641,24 +554,6 @@ class recordViewController: UIViewController {
                                                3: "Going Upstairs", 4: "Jogging", 5: "Going Downstairs"]
             return activities[intRes]!
         }
-        
-        // stuff that I haven't deleted yet
-        //        motionManager.accelerometerUpdateInterval = 0.1
-        //        motionManager.gyroUpdateInterval = 0.1
-        //        motionManager.magnetometerUpdateInterval = 0.1
-        //        if(motionManager.isGyroAvailable)
-        //        {
-        //            motionManager.startGyroUpdates(to: OperationQueue.main, withHandler: {
-        //                gyroData,error in
-        //                let gyro = gyroData!.rotationRate
-        //                outputRotationData(rotation: gyro)
-        //                if ((error) != nil){
-        //                    print("\(error ?? "error in gyro" as! Error)")
-        //                }
-        //            })
-        //        }
-        //
-        
     }
 }
 

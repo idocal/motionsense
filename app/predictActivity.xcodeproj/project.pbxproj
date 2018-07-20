@@ -10,6 +10,8 @@
 		5063068120E9072E00997650 /* welcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5063068020E9072E00997650 /* welcomeViewController.swift */; };
 		5063068320E9108100997650 /* summaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5063068220E9108100997650 /* summaryViewController.swift */; };
 		50DE7C9E20C7CFB00089D097 /* activityPredictor.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 50DE7C9D20C7CFB00089D097 /* activityPredictor.mlmodel */; };
+		FFB56DD52102105A00FA13F7 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FFB56DD22102103600FA13F7 /* Charts.framework */; };
+		FFB56DD62102105A00FA13F7 /* Charts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FFB56DD22102103600FA13F7 /* Charts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FFC9035C20B9E65B00C69070 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC9035B20B9E65B00C69070 /* AppDelegate.swift */; };
 		FFC9035E20B9E65B00C69070 /* recordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC9035D20B9E65B00C69070 /* recordViewController.swift */; };
 		FFC9036120B9E65B00C69070 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FFC9035F20B9E65B00C69070 /* Main.storyboard */; };
@@ -17,10 +19,49 @@
 		FFC9036620B9E65C00C69070 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FFC9036420B9E65C00C69070 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		FFB56DD12102103600FA13F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FFB56DCC2102103600FA13F7 /* Charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 65AD9E95D9ED4DC0BD73A743;
+			remoteInfo = Charts;
+		};
+		FFB56DD32102103600FA13F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FFB56DCC2102103600FA13F7 /* Charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1CBBC58C6CE1EBEE9852CE41;
+			remoteInfo = ChartsTests;
+		};
+		FFB56DD72102105A00FA13F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FFB56DCC2102103600FA13F7 /* Charts.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A58A4ED274A941CA248EA921;
+			remoteInfo = Charts;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FFB56DA82101DF8600FA13F7 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FFB56DD62102105A00FA13F7 /* Charts.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		5063068020E9072E00997650 /* welcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = welcomeViewController.swift; sourceTree = "<group>"; };
 		5063068220E9108100997650 /* summaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = summaryViewController.swift; sourceTree = "<group>"; };
 		50DE7C9D20C7CFB00089D097 /* activityPredictor.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = activityPredictor.mlmodel; sourceTree = "<group>"; };
+		FFB56DCC2102103600FA13F7 /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = "../../Charts-master/Charts.xcodeproj"; sourceTree = "<group>"; };
 		FFC9035820B9E65B00C69070 /* predictActivity.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = predictActivity.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFC9035B20B9E65B00C69070 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FFC9035D20B9E65B00C69070 /* recordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = recordViewController.swift; sourceTree = "<group>"; };
@@ -35,12 +76,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFB56DD52102105A00FA13F7 /* Charts.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FFB56DCD2102103600FA13F7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FFB56DD22102103600FA13F7 /* Charts.framework */,
+				FFB56DD42102103600FA13F7 /* ChartsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		FFC9034F20B9E65B00C69070 = {
 			isa = PBXGroup;
 			children = (
@@ -60,6 +111,7 @@
 		FFC9035A20B9E65B00C69070 /* predictActivity */ = {
 			isa = PBXGroup;
 			children = (
+				FFB56DCC2102103600FA13F7 /* Charts.xcodeproj */,
 				50DE7C9D20C7CFB00089D097 /* activityPredictor.mlmodel */,
 				FFC9035B20B9E65B00C69070 /* AppDelegate.swift */,
 				FFC9035D20B9E65B00C69070 /* recordViewController.swift */,
@@ -83,10 +135,12 @@
 				FFC9035420B9E65B00C69070 /* Sources */,
 				FFC9035520B9E65B00C69070 /* Frameworks */,
 				FFC9035620B9E65B00C69070 /* Resources */,
+				FFB56DA82101DF8600FA13F7 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FFB56DD82102105A00FA13F7 /* PBXTargetDependency */,
 			);
 			name = predictActivity;
 			productName = predictActivity;
@@ -119,12 +173,35 @@
 			mainGroup = FFC9034F20B9E65B00C69070;
 			productRefGroup = FFC9035920B9E65B00C69070 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = FFB56DCD2102103600FA13F7 /* Products */;
+					ProjectRef = FFB56DCC2102103600FA13F7 /* Charts.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				FFC9035720B9E65B00C69070 /* predictActivity */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		FFB56DD22102103600FA13F7 /* Charts.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Charts.framework;
+			remoteRef = FFB56DD12102103600FA13F7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FFB56DD42102103600FA13F7 /* ChartsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ChartsTests.xctest;
+			remoteRef = FFB56DD32102103600FA13F7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		FFC9035620B9E65B00C69070 /* Resources */ = {
@@ -153,6 +230,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FFB56DD82102105A00FA13F7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Charts;
+			targetProxy = FFB56DD72102105A00FA13F7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		FFC9035F20B9E65B00C69070 /* Main.storyboard */ = {
@@ -291,6 +376,7 @@
 		FFC9036B20B9E65C00C69070 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GX7S7JL3FD;
@@ -309,6 +395,7 @@
 		FFC9036C20B9E65C00C69070 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GX7S7JL3FD;
