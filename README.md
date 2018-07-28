@@ -1,12 +1,12 @@
 # MotiononSense Dataset
 ### Problem definition: predict user's activity based on smartphone sensors data
 
----
+
 ## Overview
 
 Our main goal is to analyze how analytical data from mobile sensors can be used to identify what a user is actually doing in real-life. We first downloaded a dataset from Kaggle and chose the best performing model. Then, we gathered our own data and checked if the model still evaluates well. Next, we developed our own mobile app to see our model in action. Finally, we used a boosting method to improve real life predictions. Our point of focus here is to demonstrate the whole cycle: How a data science analysis of an outsourced dataset turns into a working product.
 
----
+
 ## Business Understating
 
 ### Some context about how the data was created:
@@ -26,16 +26,16 @@ The dataset contains time-series collected by both Accelerometer and Gyroscope
 * For every trial we have a multivariate time-series
 * Thus, we have time-series with a total of 12 features, 3 axis for each measurement : Attitude, Gravity, Rotation Rate and User Acceleration
 
----
+
 ## Problem Definition and Applications
 
-* Our probelm is predicting user's activity from phone sensors data
+* Our problem is predicting user's activity from phone sensors data
 * This definition might be too wide, so we limit ourself to predicting 1 of 5 possible activities
 * Thus, we can define our problem as multiclass classification, where we can label each data point as <br> sitting, standing, walking, going downstaris or going upstairs
 * There are many application for this kind of classification in various fields such as <br> healthcare, intelligence etc.
 * We will further discuss some of these applications in later part of our project
 
----
+
 ## Feature Extraction / Engineering
 
 Our data is a time series - a sequence of measurements over time
@@ -57,7 +57,7 @@ Our data is a time series - a sequence of measurements over time
 * For example, here we will use a context size of 10. i.e it is aligned with our previous sliding window method, <br> but instead of calculating aggregation of analytical function over the context features, here we simply encode them as a long vector
 * Again, we cannot mix between different experiments who represents different activity label
 
----
+
 ## Classic ML Models - Training and Statistical Evaluation
 
 * Now we have two different encodings of our time series data as independent data points.
@@ -72,11 +72,33 @@ Our data is a time series - a sequence of measurements over time
 * Second, We also consider our assumption that some activities will be much harder to predict compared to others. <br> i.e separating "sit" from "walk" should be much easier than separating between "upstairs" and "downstairs"
 * That is why we'll be interested in the model performance for each activity by its own.
 
----
+
 ## Problems and the Need for "Real Data"
 
 * As we can see, even on our left aside test data the performance of the model is too good to be true.
 * This is a reason to suspect that although we tested our model on data was not used to train it, **we are over-fitting to the current data set as a whole**
 * We suspect that **the generation process of the data was too "synthetic"**, not representing "real world" data obtained from phone sensors
 * We used this experiment framework to **extract real data obtained from our activities** during the day and labeled them accordingly
-* In the next notebook we will present our model performance on our "real world" data and try to train more complex models to improve our performance over the real world data
+
+
+## Extracting Real World Data
+
+
+* We used the [Core Motion Framework for iOS devices](https://developer.apple.com/documentation/coremotion/cmdevicemotion) to extract sensors data from our phones
+* More details on the app we built can be found in our final document
+* We recorded sensors data while performing different activities and extracted labeled data samples
+
+
+## Applicative Predictions Smoothing
+
+* Here we present a simple concept which works well in practice
+* Instead of adding complexity to our model, we smooth the predictions
+* We assume that real world activities last at least **3 seconds**
+* Thus, we use a majority vote smoothing technique, with a factor of **30 predictions**
+
+**Conclusion:**
+* The results now look better than the naïve Random Forest.
+* We used a very simple smoothing technique with a constant factor
+* It's reasonable to assume that more sophisticated filters would result in even better result
+* The applicative solution works well in practice
+* We now provide the user with a prediction every 3 seconds instead of every 0.1 seconds
