@@ -1,4 +1,4 @@
-# MotiononSense Dataset
+# MotionSense Dataset
 ### Problem definition: predict user's activity based on smartphone sensors data
 
 
