@@ -1,4 +1,3 @@
 *.pkl
 *-checkpoint.ipynb
 *.mlmodel
-*.mp4
