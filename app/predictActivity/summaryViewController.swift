@@ -8,7 +8,7 @@ import UIKit
 
 import Charts
 
-var MAJORITY_VOTE_WINDOW = 5
+var MAJORITY_VOTE_WINDOW = 30
 
 class summaryViewController: UIViewController {
     @IBAction func startOverButton(_ sender: Any) {
@@ -52,7 +52,7 @@ class summaryViewController: UIViewController {
         // Smoothing the predictions using a majority vote
         let predictionsArrayLength = self.predictionsArray.count
         
-        if (predictionsArrayLength <= MAJORITY_VOTE_WINDOW) {
+        if (predictionsArrayLength < MAJORITY_VOTE_WINDOW) {
             // nothing to smooth here
             self.finalPredictionsArray = self.predictionsArray
             return

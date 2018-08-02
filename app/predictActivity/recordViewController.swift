@@ -10,7 +10,7 @@ import CoreMotion
 */
 
 var WINDOW_SIZE = 20
-
+var PREDICTION_WINDOW = 25
 // Our ML model
 var model = activityPredictor()
 
@@ -38,7 +38,8 @@ class Session {
     
     // Our predictions for this session
     var predictionsArray: [Int8] = []
-    
+    var predictionSlidingWindow: [Int8] = []
+
     // Outlets
     
     @IBOutlet var userAccX: UILabel?
@@ -251,8 +252,49 @@ class recordViewController: UIViewController {
     var motionManager = CMMotionManager()
     
     @IBOutlet var predictResult: UILabel!
-    
     // Functions
+    // calculating what is the mode of an array and how many times does it appear
+    func mostFrequent<T: Hashable>(array: [T]) -> (value: T, count: Int)? {
+        
+        let counts = array.reduce(into: [:]) { $0[$1, default: 0] += 1 }
+        
+        if let (value, count) = counts.max(by: { $0.1 < $1.1 }) {
+            return (value, count)
+        }
+        
+        // array was empty
+        return nil
+    }
+    
+    func predictionsSlidingWindowHandler (array: inout [Int8], point: Int8 ) -> Void {
+        array.append(point)
+        if (array.count > PREDICTION_WINDOW) {
+            array.remove(at: 0)
+        }
+    }
+    
+    func majorityVoter () -> Int64{
+        // Smoothing the predictions using a majority vote
+        let predictionsArrayLength = self.currentSession.predictionSlidingWindow.count
+        
+        if (predictionsArrayLength < PREDICTION_WINDOW) {
+            // nothing to smooth here
+            return Int64(self.currentSession.predictionSlidingWindow[predictionsArrayLength-1])
+        }
+        for _ in 0..<(predictionsArrayLength) {
+            // checking the mode of the array and how many times does he appears
+            let majorityVote = mostFrequent(array: currentSession.predictionSlidingWindow)
+            
+            if (Double((majorityVote?.count)!) >= (0.4*Double(PREDICTION_WINDOW))){
+                // returning the majority vote if a certain value is the mode for at least 40% of the values
+                return Int64((majorityVote?.value)!)
+            } else {
+                // appending the original prediction
+                return Int64(self.currentSession.predictionSlidingWindow[predictionsArrayLength-1])
+            }
+        }
+        return 0
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -284,10 +326,30 @@ class recordViewController: UIViewController {
             }
             self.currentSession.predictionsArray.append(Int8(prediction))
             
+            self.predictionsSlidingWindowHandler(array: &self.currentSession.predictionSlidingWindow, point: Int8(prediction))
+
+            var final_prediction = self.majorityVoter()
+            outputPrediction(res: final_prediction)
+
             if ((error) != nil){
                 print("\(error ?? "error in device motion" as! Error)")
             }
         })
+        
+        func outputPrediction(res: Int64) {
+            predictResult?.text = "\(modelResToString(intRes: res))"
+        }
+
+        func getNumbers(array : [Int8]) -> String {
+            let stringArray = array.map{ String($0) }
+            return stringArray.joined(separator: ",")
+        }
+        
+        func modelResToString(intRes: Int64) -> String{
+            let activities: [Int64: String] = [0: "Walking", 1: "Sitting", 2: "Standing",
+                                               3: "Using the \n Stairs", 4: "Jogging"]
+            return activities[intRes]!
+        }
         
         func updateSlidingWindowArrays(
             acceleration: CMAcceleration, attitude: CMAttitude,
@@ -549,11 +611,6 @@ class recordViewController: UIViewController {
             }
         }
         
-        func modelResToString(intRes: Int64) -> String{
-            let activities: [Int64: String] = [0: "Walking", 1: "Sitting", 2: "Standing",
-                                               3: "Going Upstairs", 4: "Jogging", 5: "Going Downstairs"]
-            return activities[intRes]!
-        }
     }
 }
 
